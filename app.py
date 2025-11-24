@@ -6,38 +6,38 @@ app.secret_key = "supersecretkey"  # Use environment variable in production
 
 # Full Line 33 schedule
 STOPS = [
-    {"name":"Oosterblok","time":"17:53","delay":9},
-    {"name":"Baaier","time":"17:54","delay":9},
-    {"name":"BosWater","time":"17:55","delay":8},
-    {"name":"De veer QD","time":"17:55","delay":7},
-    {"name":"brugstraat","time":"17:56","delay":8},
-    {"name":"Komerplein","time":"17:56","delay":7},
-    {"name":"Oosterbrug","time":"17:57","delay":5},
-    {"name":"Oostplein","time":"17:57","delay":9},
-    {"name":"Rembrand CNTRL","time":"17:58","delay":10},
-    {"name":"Hoogzandweg","time":"17:59","delay":8},
-    {"name":"Hogezand Strand","time":"18:00","delay":8},
-    {"name":"HZ WalenbW","time":"18:01","delay":11},
-    {"name":"Hoogzand Centrum","time":"18:02","delay":12},
-    {"name":"Zaandams weg","time":"18:03","delay":7},
-    {"name":"Bosweg","time":"18:05","delay":5},
-    {"name":"Bergenlaan","time":"18:06","delay":6},
-    {"name":"HVBergenlaan","time":"18:07","delay":4},
-    {"name":"Zaandam Centrum","time":"18:09","delay":7},
-    {"name":"HVBergenlaan","time":"18:11","delay":9},
-    {"name":"Bergenlaan","time":"18:12","delay":12},
-    {"name":"Bosweg","time":"18:13","delay":6},
-    {"name":"Zaandams Weg","time":"18:14","delay":8},
-    {"name":"HoogZand Centrum","time":"18:16","delay":12},
-    {"name":"HZ WalenBW","time":"18:17","delay":13},
-    {"name":"Hoogzandweg","time":"18:18","delay":7},
-    {"name":"Rembrand CNTRL","time":"18:19","delay":7},
-    {"name":"Oostplein","time":"18:22","delay":7},
-    {"name":"De veer QD","time":"18:25","delay":5},
-    {"name":"BosWater","time":"18:26","delay":3},
-    {"name":"Damweg","time":"18:28","delay":7},
-    {"name":"Schuurplein","time":"18:29","delay":12},
-    {"name":"Oosterblok","time":"18:30","delay":17},
+    {"name":"Oosterblok","time":"17:53"},
+    {"name":"Baaier","time":"17:54"},
+    {"name":"BosWater","time":"17:55"},
+    {"name":"De veer QD","time":"17:55"},
+    {"name":"brugstraat","time":"17:56"},
+    {"name":"Komerplein","time":"17:56"},
+    {"name":"Oosterbrug","time":"17:57"},
+    {"name":"Oostplein","time":"17:57"},
+    {"name":"Rembrand CNTRL","time":"17:58"},
+    {"name":"Hoogzandweg","time":"17:59"},
+    {"name":"Hogezand Strand","time":"18:00"},
+    {"name":"HZ WalenbW","time":"18:01"},
+    {"name":"Hoogzand Centrum","time":"18:02"},
+    {"name":"Zaandams weg","time":"18:03"},
+    {"name":"Bosweg","time":"18:05"},
+    {"name":"Bergenlaan","time":"18:06"},
+    {"name":"HVBergenlaan","time":"18:07"},
+    {"name":"Zaandam Centrum","time":"18:09"},
+    {"name":"HVBergenlaan","time":"18:11"},
+    {"name":"Bergenlaan","time":"18:12"},
+    {"name":"Bosweg","time":"18:13"},
+    {"name":"Zaandams Weg","time":"18:14"},
+    {"name":"HoogZand Centrum","time":"18:16"},
+    {"name":"HZ WalenBW","time":"18:17"},
+    {"name":"Hoogzandweg","time":"18:18"},
+    {"name":"Rembrand CNTRL","time":"18:19"},
+    {"name":"Oostplein","time":"18:22"},
+    {"name":"De veer QD","time":"18:25"},
+    {"name":"BosWater","time":"18:26"},
+    {"name":"Damweg","time":"18:28"},
+    {"name":"Schuurplein","time":"18:29"},
+    {"name":"Oosterblok","time":"18:30"},
 ]
 
 def add_minutes(time_str, minutes):
@@ -48,7 +48,7 @@ def add_minutes(time_str, minutes):
 @app.route("/", methods=["GET", "POST"])
 def index():
     if "delays" not in session:
-        session["delays"] = [stop["delay"] for stop in STOPS]
+        session["delays"] = [0 for _ in STOPS]  # Start all delays at 0
     if "times" not in session:
         session["times"] = [stop["time"] for stop in STOPS]
 
@@ -60,7 +60,15 @@ def index():
             if f"subtract_delay_{i}" in request.form:
                 session["delays"][i] = max(0, session["delays"][i]-1)
 
-            # Change scheduled time
+            # Editable delay input
+            if f"delay_{i}" in request.form:
+                try:
+                    new_delay = int(request.form[f"delay_{i}"])
+                    session["delays"][i] = max(0, new_delay)
+                except ValueError:
+                    pass
+
+            # Editable time input
             if f"time_{i}" in request.form:
                 new_time = request.form[f"time_{i}"]
                 try:
@@ -71,7 +79,7 @@ def index():
 
         # Reset all button
         if "reset_all" in request.form:
-            session["delays"] = [stop["delay"] for stop in STOPS]
+            session["delays"] = [0 for _ in STOPS]
             session["times"] = [stop["time"] for stop in STOPS]
 
         session.modified = True
