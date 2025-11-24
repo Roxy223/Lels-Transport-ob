@@ -1,0 +1,7 @@
+body { font-family: Arial; padding:20px; background: #f3f4f6; color:#111;}
+.stop { padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ccc; display:flex; justify-content:space-between; align-items:center;}
+.stop.active { background:#1e40af; color:white; font-weight:bold;}
+button { padding:4px 8px; border:none; border-radius:6px; cursor:pointer; background:#1e40af; color:white; }
+[data-theme="dark"] { background:#0b1220; color:#e6eef8; }
+[data-theme="dark"] .stop { border:1px solid #444; }
+[data-theme="dark"] button { background:#60a5fa; color:#0b1220; }

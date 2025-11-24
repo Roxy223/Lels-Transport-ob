@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Line 33 Duty Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f3f4f6; color: #111; }
+        h1 { text-align: center; margin-bottom: 20px; }
+
+        .stop-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stop-info { flex: 1 1 200px; margin-bottom: 8px; font-size: 1rem; }
+
+        .stop-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+        .btn { padding:6px 12px; border:none; border-radius:6px; cursor:pointer; background:#1e40af; color:white; font-weight:bold; }
+        .reset-btn { background:#dc2626; width: 100%; margin-top:10px; font-weight:bold; }
+
+        input.time-input { width: 70px; text-align:center; font-weight:bold; }
+
+        /* Delay colors */
+        .on-time { color: #16a34a; font-weight: bold; }
+        .moderate-delay { color: #f59e0b; font-weight: bold; }
+        .heavy-delay { color: #dc2626; font-weight: bold; }
+
+        @media (max-width: 500px) {
+            .stop-actions { flex: 1 1 100%; justify-content: flex-start; }
+            input.time-input { width: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Line 33 Duty Tracker</h1>
+
+    <form method="POST">
+        {% for stop in stops %}
+            {% set delay_class = "" %}
+            {% if stop.delay <= 5 %}
+                {% set delay_class = "on-time" %}
+            {% elif stop.delay <= 10 %}
+                {% set delay_class = "moderate-delay" %}
+            {% else %}
+                {% set delay_class = "heavy-delay" %}
+            {% endif %}
+
+            <div class="stop-card">
+                <div class="stop-info">
+                    {{ stop.name }} — 
+                    <input type="time" name="time_{{ loop.index0 }}" value="{{ stop.time }}" class="time-input">
+                    (+{{ stop.delay }}) → <span class="{{ delay_class }}">{{ stop.delayed_time }}</span>
+                </div>
+                <div class="stop-actions">
+                    <button type="submit" name="subtract_delay_{{ loop.index0 }}" class="btn">-1 min</button>
+                    <button type="submit" name="add_delay_{{ loop.index0 }}" class="btn">+1 min</button>
+                </div>
+            </div>
+        {% endfor %}
+        <button type="submit" name="reset_all" class="btn reset-btn">Reset All</button>
+    </form>
+</body>
+</html>
