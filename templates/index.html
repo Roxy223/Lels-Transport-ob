@@ -2,73 +2,76 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>33 Naar Zaandamse Weg - Oosterblok (Via: Rembrand Centraal En Zaandam Cemtrum.)</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>33 Naar Zaandamse Weg - Oosterblok</title>
     <style>
-        body { font-family: Arial; padding: 20px; background: #f3f4f6; color: #111; }
-        h1 { text-align: center; margin-bottom: 20px; font-size: 1.4rem; }
-
-        .stop-card {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            padding: 15px;
-            margin-bottom: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            padding: 20px;
+            color: #111;
         }
 
-        .stop-info { flex: 1 1 200px; margin-bottom: 8px; font-size: 1rem; }
+        h1 {
+            margin-bottom: 5px;
+        }
 
-        .stop-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+        .sub {
+            margin-bottom: 20px;
+            opacity: .8;
+        }
 
-        .btn { padding:6px 12px; border:none; border-radius:6px; cursor:pointer; background:#1e40af; color:white; font-weight:bold; }
-        .reset-btn { background:#dc2626; width: 100%; margin-top:10px; font-weight:bold; }
+        .timeline {
+            position: relative;
+            margin-left: 40px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 20px;
+        }
 
-        input.time-input { width: 70px; text-align:center; font-weight:bold; }
-        input.delay-input { width:50px; text-align:center; font-weight:bold; }
+        .stop {
+            position: relative;
+            padding: 10px 0;
+        }
 
-        /* Delay colors */
-        .on-time { color: #16a34a; font-weight: bold; }
-        .moderate-delay { color: #f59e0b; font-weight: bold; }
-        .heavy-delay { color: #dc2626; font-weight: bold; }
+        .stop::before {
+            content: "";
+            position: absolute;
+            left: -32px;
+            top: 14px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 3px solid #3b82f6;
+            border-radius: 50%;
+        }
 
-        @media (max-width: 500px) {
-            .stop-actions { flex: 1 1 100%; justify-content: flex-start; }
-            input.time-input { width: 60px; }
+        .time {
+            font-weight: bold;
+            margin-right: 10px;
+            width: 60px;
+            display: inline-block;
+        }
+
+        .delay {
+            opacity: 0.6;
+            font-size: 14px;
+            margin-left: 8px;
         }
     </style>
 </head>
+
 <body>
-    <h1>33 Naar Zaandamse Weg - Oosterblok (Via: Rembrand Centraal En Zaandam Cemtrum.)</h1>
+    <h1>33 Naar Zaandamse Weg - Oosterblok</h1>
+    <div class="sub">(Via: Rembrand Centraal en Zaandam Centrum)</div>
 
-    <form method="POST">
+    <div class="timeline">
         {% for stop in stops %}
-            {% set delay_class = "" %}
-            {% if stop.delay <= 5 %}
-                {% set delay_class = "on-time" %}
-            {% elif stop.delay <= 10 %}
-                {% set delay_class = "moderate-delay" %}
-            {% else %}
-                {% set delay_class = "heavy-delay" %}
-            {% endif %}
-
-            <div class="stop-card">
-                <div class="stop-info">
-                    {{ stop.name }} — 
-                    <input type="time" name="time_{{ loop.index0 }}" value="{{ stop.time }}" class="time-input">
-                    +<input type="number" name="delay_{{ loop.index0 }}" value="{{ stop.delay }}" min="0" class="delay-input"> → 
-                    <span class="{{ delay_class }}">{{ stop.delayed_time }}</span>
-                </div>
-                <div class="stop-actions">
-                    <button type="submit" name="subtract_delay_{{ loop.index0 }}" class="btn">-1 min</button>
-                    <button type="submit" name="add_delay_{{ loop.index0 }}" class="btn">+1 min</button>
-                </div>
-            </div>
+        <div class="stop">
+            <span class="time">{{ stop.delayed_time }}</span>
+            <span class="name">{{ stop.name }}</span>
+            <span class="delay">(+{{ stop.delay }} min)</span>
+        </div>
         {% endfor %}
-        <button type="submit" name="reset_all" class="btn reset-btn">Reset All</button>
-    </form>
+    </div>
+
 </body>
 </html>
