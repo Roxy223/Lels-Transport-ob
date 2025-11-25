@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # use env var in production
+app.secret_key = "supersecretkey"  # replace with env var in production
 
 # Stops (base scheduled times)
 STOPS = [
@@ -40,8 +40,11 @@ STOPS = [
     {"name":"Oosterblok","time":"18:30"},
 ]
 
+# uploaded image local path (will be converted by your environment)
+SAMPLE_IMAGE = "/mnt/data/48b3c56f-2692-49b6-9e22-bf2e1af7218a.png"
+
 def add_minutes(time_str, minutes):
-    """Add minutes to HH:MM time string and return HH:MM (wraps past midnight)."""
+    """Add (or subtract) minutes to HH:MM string and return HH:MM (wraps past midnight)."""
     h, m = map(int, time_str.split(":"))
     dt = datetime(2000,1,1,h,m) + timedelta(minutes=minutes)
     return dt.strftime("%H:%M")
@@ -55,29 +58,35 @@ def index():
         session["delays"] = [0 for _ in STOPS]
 
     if request.method == "POST":
-        # process edits for each stop
+        # check each stop for updates or +/- clicks
         for i, _ in enumerate(STOPS):
-            # time input (HH:MM)
-            time_key = f"time_{i}"
-            if time_key in request.form:
-                new_time = request.form.get(time_key).strip()
-                try:
-                    datetime.strptime(new_time, "%H:%M")
-                    session["times"][i] = new_time
-                except Exception:
-                    pass  # ignore invalid time formats
+            # +/- buttons: names like add_0, sub_0
+            if f"add_{i}" in request.form:
+                session["delays"][i] = session["delays"][i] + 1
+            if f"sub_{i}" in request.form:
+                session["delays"][i] = session["delays"][i] - 1  # allow negative for early
 
-            # delay input (integer)
-            delay_key = f"delay_{i}"
-            if delay_key in request.form:
-                val = request.form.get(delay_key).strip()
+            # time input
+            tkey = f"time_{i}"
+            if tkey in request.form:
+                val = request.form.get(tkey, "").strip()
                 try:
-                    new_delay = int(float(val))  # accept numbers, e.g. "0" or "3"
-                    session["delays"][i] = max(0, new_delay)
+                    datetime.strptime(val, "%H:%M")
+                    session["times"][i] = val
                 except Exception:
                     pass
 
-        # reset to defaults
+            # delay numeric input (editable)
+            dkey = f"delay_{i}"
+            if dkey in request.form:
+                val = request.form.get(dkey, "").strip()
+                try:
+                    newd = int(float(val))
+                    session["delays"][i] = newd
+                except Exception:
+                    pass
+
+        # Reset
         if "reset_all" in request.form:
             session["times"] = [stop["time"] for stop in STOPS]
             session["delays"] = [0 for _ in STOPS]
@@ -85,7 +94,7 @@ def index():
         session.modified = True
         return redirect(url_for("index"))
 
-    # prepare stops for rendering
+    # prepare stops
     stops_render = []
     for i, stop in enumerate(STOPS):
         base_time = session["times"][i]
@@ -96,13 +105,13 @@ def index():
             "base_time": base_time,
             "delay": delay,
             "updated_time": updated_time,
-            "is_delayed": delay > 0
+            "is_delayed": delay != 0
         })
 
-    # pass sample image path (your uploaded image) so front-end can use it if desired
-    uploaded_sample = "/mnt/data/48b3c56f-2692-49b6-9e22-bf2e1af7218a.png"
-
-    return render_template("index.html", stops=stops_render, title="33 Naar Zaandamse Weg - Oosterblok (Via: Rembrand Centraal en Zaandam Centrum)", sample_image=uploaded_sample)
+    return render_template("index.html",
+                           stops=stops_render,
+                           title="33 Naar Zaandamse Weg - Oosterblok (Via: Rembrand Centraal en Zaandam Centrum)",
+                           sample_image=SAMPLE_IMAGE)
 
 if __name__ == "__main__":
     app.run(debug=True)
