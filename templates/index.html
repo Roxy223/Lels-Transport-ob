@@ -1,77 +1,245 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>33 Naar Zaandamse Weg - Oosterblok</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            padding: 20px;
-            color: #111;
-        }
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{
+      --line-top: #3b82f6;
+      --line-bottom: #7c3aed;
+      --dot-border: #ffffff;
+      --card-bg: #fff;
+      --muted: #666;
+      --red: #dc2626;
+      --green: #16a34a;
+    }
+    body{
+      font-family: Inter, Arial, sans-serif;
+      margin:0;
+      padding:18px;
+      background:#f3f4f6;
+      color:#111;
+    }
+    header{ text-align:center; margin-bottom:10px; }
+    h1{ margin:0; font-size:1.1rem; }
+    p.sub { margin:6px 0 12px; color:var(--muted); font-size:0.95rem; }
 
-        h1 {
-            margin-bottom: 5px;
-        }
+    /* container */
+    .wrap{ max-width:880px; margin:0 auto; }
 
-        .sub {
-            margin-bottom: 20px;
-            opacity: .8;
-        }
+    /* timeline layout */
+    .timeline{
+      position:relative;
+      padding-left:120px; /* space for times on left */
+    }
 
-        .timeline {
-            position: relative;
-            margin-left: 40px;
-            border-left: 4px solid #3b82f6;
-            padding-left: 20px;
-        }
+    /* vertical gradient line */
+    .timeline::before{
+      content:"";
+      position:absolute;
+      left:56px; top:8px; bottom:8px;
+      width:8px;
+      border-radius:4px;
+      background:linear-gradient(to bottom, var(--line-top), var(--line-bottom));
+      box-shadow:0 2px 8px rgba(59,130,246,0.12);
+    }
 
-        .stop {
-            position: relative;
-            padding: 10px 0;
-        }
+    /* per-stop row */
+    .stop{
+      position:relative;
+      display:flex;
+      padding:8px 12px;
+      align-items:flex-start;
+      gap:12px;
+    }
 
-        .stop::before {
-            content: "";
-            position: absolute;
-            left: -32px;
-            top: 14px;
-            width: 12px;
-            height: 12px;
-            background: white;
-            border: 3px solid #3b82f6;
-            border-radius: 50%;
-        }
+    /* left times column */
+    .times {
+      position:absolute;
+      left:0;
+      width:96px;
+      text-align:right;
+      padding-right:12px;
+      top:0;
+      font-weight:600;
+    }
 
-        .time {
-            font-weight: bold;
-            margin-right: 10px;
-            width: 60px;
-            display: inline-block;
-        }
+    /* circle/dot on the line */
+    .dot{
+      position:absolute;
+      left:52px;
+      top:18px;
+      width:18px; height:18px;
+      border-radius:50%;
+      background:linear-gradient(180deg,var(--line-top),var(--line-bottom));
+      border:3px solid var(--dot-border);
+      box-shadow:0 1px 3px rgba(0,0,0,0.12);
+    }
 
-        .delay {
-            opacity: 0.6;
-            font-size: 14px;
-            margin-left: 8px;
-        }
-    </style>
+    /* card with name and details */
+    .card{
+      background:var(--card-bg);
+      padding:10px 14px;
+      border-radius:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom:8px;
+      width:100%;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .stop-name{ font-weight:700; font-size:1rem; color:#111; }
+    .meta{ color:var(--muted); font-size:0.92rem; }
+
+    /* times inside card */
+    .time-original{
+      color:var(--muted);
+      text-decoration:none;
+      margin-right:8px;
+    }
+    .time-original.crossed{ text-decoration:line-through; opacity:0.5; }
+
+    .time-updated{
+      font-weight:800;
+    }
+    .time-updated.red{ color:var(--red); }
+    .time-updated.normal{ color:#111; }
+
+    /* inputs */
+    input[type="time"], input[type="number"]{
+      border:1px solid #e5e7eb;
+      padding:6px 8px;
+      border-radius:6px;
+      font-size:0.94rem;
+      background:white;
+    }
+
+    .controls{ margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+    .btn{
+      background:#1e40af; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600;
+    }
+    .btn.reset{ background:var(--red); }
+
+    /* icons area - left of first stop for start icon */
+    .start-icon{
+      position:absolute; left:48px; top:-10px; transform:translateY(-50%); 
+    }
+    .end-icon{
+      position:absolute; left:48px; bottom:-6px; transform:translateY(50%);
+    }
+
+    /* mobile tweaks */
+    @media (max-width:720px){
+      .timeline{ padding-left:86px; }
+      .timeline::before{ left:46px; }
+      .dot{ left:42px; }
+      .times{ width:76px; font-size:0.95rem; }
+    }
+  </style>
 </head>
-
 <body>
-    <h1>33 Naar Zaandamse Weg - Oosterblok</h1>
-    <div class="sub">(Via: Rembrand Centraal en Zaandam Centrum)</div>
+  <div class="wrap">
+    <header>
+      <h1>{{ title }}</h1>
+      <p class="sub">(Via: Rembrand Centraal en Zaandam Centrum)</p>
 
-    <div class="timeline">
+      <!-- sample small image you uploaded (your system will transform the local path to a URL) -->
+      <img src="{{ sample_image }}" alt="example" style="max-height:34px; opacity:0.95; margin-top:6px;">
+    </header>
+
+    <form method="POST" action="/">
+      <div class="timeline">
+
+        <!-- start icon (bus) -->
+        <div class="start-icon" aria-hidden="true">
+          <!-- small bus SVG -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="5" width="18" height="11" rx="2" fill="#ffffff" stroke="url(#g)" stroke-width="1.2"/>
+            <circle cx="7.5" cy="18.5" r="1.4" fill="#111"/>
+            <circle cx="15.5" cy="18.5" r="1.4" fill="#111"/>
+            <defs>
+              <linearGradient id="g" x1="0" x2="1">
+                <stop offset="0" stop-color="#3b82f6"/>
+                <stop offset="1" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
         {% for stop in stops %}
         <div class="stop">
-            <span class="time">{{ stop.delayed_time }}</span>
-            <span class="name">{{ stop.name }}</span>
-            <span class="delay">(+{{ stop.delay }} min)</span>
+          <div class="times">
+            <!-- left column shows original base time (grey) and updated time will be shown inside card as well -->
+            <div style="margin-top:0.6rem;">
+              {{ stop.base_time }}
+            </div>
+          </div>
+
+          <div class="dot" aria-hidden="true"></div>
+
+          <div class="card">
+            <div class="row">
+              <div>
+                <div class="stop-name">{{ stop.name }}</div>
+
+                <div class="meta" style="margin-top:6px;">
+                  <!-- original time (crossed when delayed) -->
+                  <span class="time-original {% if stop.is_delayed %}crossed{% endif %}">{{ stop.base_time }}</span>
+
+                  <!-- updated time: red when delayed, normal when 0 -->
+                  <span class="time-updated {% if stop.is_delayed %}red{% else %}normal{% endif %}">{{ stop.updated_time }}</span>
+
+                  <span style="margin-left:10px; color:#666;">(+{{ stop.delay }} min)</span>
+                </div>
+              </div>
+
+              <div style="min-width:190px; text-align:right;">
+                <!-- editable fields -->
+                <div style="display:flex; gap:8px; justify-content:flex-end; align-items:center;">
+                  <label style="font-size:0.85rem; color:var(--muted);">Time</label>
+                  <input type="time" name="time_{{ loop.index0 }}" value="{{ stop.base_time }}">
+
+                  <label style="font-size:0.85rem; color:var(--muted); margin-left:6px;">Delay</label>
+                  <input type="number" min="0" name="delay_{{ loop.index0 }}" value="{{ stop.delay }}" style="width:72px;">
+                </div>
+
+                <div class="controls" style="justify-content:flex-end;">
+                  <!-- small helper text -->
+                  <div style="font-size:0.82rem; color:var(--muted);">Edit and press Update</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         {% endfor %}
-    </div>
 
+        <!-- end icon (square terminus) -->
+        <div class="end-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="6" width="12" height="12" rx="3" fill="#ffffff" stroke="url(#g2)" stroke-width="1.4"/>
+            <defs>
+              <linearGradient id="g2" x1="0" x2="1">
+                <stop offset="0" stop-color="#3b82f6"/>
+                <stop offset="1" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+      </div> <!-- timeline -->
+
+      <div style="margin-top:14px; display:flex; gap:10px;">
+        <button type="submit" class="btn">Update</button>
+        <button type="submit" name="reset_all" value="1" class="btn reset">Reset to defaults</button>
+      </div>
+    </form>
+  </div>
 </body>
 </html>
