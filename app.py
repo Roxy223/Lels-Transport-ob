@@ -37,7 +37,7 @@ STOPS = [
     {"name":"BosWater","time":"18:26"},
     {"name":"Damweg","time":"18:28"},
     {"name":"Schuurplein","time":"18:29"},
-    {"name":"Oosterblok","time":"18:30"},
+    {"name":"Busstation (Oosterblok)","time":"18:30"},
 ]
 
 # uploaded image local path (will be converted by your environment)
@@ -115,3 +115,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
